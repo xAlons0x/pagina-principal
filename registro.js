@@ -12,7 +12,6 @@ import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-f
 function showAlert(message, type, autoClose = false, redirectURL = null) {
     const container = document.getElementById('custom-alert-container');
     
-    // Fallback de emergencia
     if (!container) {
         if (redirectURL) {
             alert(message);
@@ -71,11 +70,12 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
 // FUNCIÓN DE REGISTRO
 // =============================================================
 function handleRegistration(event) {
-    event.preventDefault();
+    event.preventDefault(); // CRÍTICO: Evita la redirección del HTML
 
-    const email = document.getElementById('register-email').value;
-    const password = document.getElementById('register-password').value;
-    const username = document.getElementById('register-username').value; 
+    // IDs ACTUALIZADOS: email, username, contrasena
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('contrasena').value; // Usamos 'contrasena'
+    const username = document.getElementById('username').value; 
     
     const submitBtn = document.querySelector('#registration-form button[type="submit"]');
     submitBtn.disabled = true;
@@ -104,11 +104,9 @@ function handleRegistration(event) {
             
             const redirectURL = `dashboard.html?username=${username}`; 
 
-            // 2. ÉXITO: Muestra el modal verde (autoClose: true) y pasa la URL. 
-            // La función showAlert ahora maneja la redirección con el retraso necesario.
+            // 2. ÉXITO: Muestra el modal verde con retraso y redirección
             showAlert("¡Te has registrado correctamente!", 'success', true, redirectURL);
             
-            // NOTA: El botón queda deshabilitado hasta que se redirige para evitar doble clic.
         })
         .catch((error) => {
             // Habilitar el botón en caso de error
