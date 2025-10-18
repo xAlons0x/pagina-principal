@@ -432,7 +432,7 @@
             'header-title': { es: 'Panel de Control', en: 'Dashboard', pt: 'Painel de Controle', fr: 'Tableau de Bord', de: 'Kontrollzentrum', ja: 'ダッシュボード' },
             'profile-link-text': { es: 'Perfil', en: 'Profile', pt: 'Perfil', fr: 'Profil', de: 'Profil', ja: 'プロフィール' },
             'dashboard-heading': { es: 'Bienvenido a VulcanusMC', en: 'Welcome to VulcanusMC', pt: 'Bem-vindo ao VulcanusMC', fr: 'Bienvenue sur VulcanusMC', de: 'Willkommen bei VulcanusMC', ja: 'VulcanusMCへようこそ' },
-            'dashboard-welcome': { es: 'Aquí puedes ver el estado actual del servidor y de tu cuenta.', en: 'Here you can see the current server and account status.', pt: 'Aqui você pode ver o estado atual do servidor e da sua conta.', fr: 'Ici, vous pouvez voir l\'état actuel du servidor y de votre compte.', de: 'Hier können Sie den aktuellen Server- und Kontostatus sehen.', ja: 'ここでは、現在のサーバーとアカウントのステータスを確認できます。' },
+            'dashboard-welcome': { es: 'Aquí puedes ver el estado actual del servidor y de tu cuenta.', en: 'Here you can see the current server and account status.', pt: 'Aqui você pode ver o estado atual do servidor e da sua conta.', fr: 'Ici, vous pouvez voir l\'état actuel del servidor y de votre compte.', de: 'Hier können Sie den aktuellen Server- und Kontostatus sehen.', ja: 'ここでは、現在のサーバーとアカウントのステータスを確認できます。' },
             'server-status-title': { es: 'Estado del Servidor', en: 'Server Status', pt: 'Status do Servidor', fr: 'Statut du Serveur', de: 'Serverstatus', ja: 'サーバーのステータス' },
             'status-online': { es: 'Estado:', en: 'Status:', pt: 'Status:', fr: 'Statut:', de: 'Status:', ja: 'ステータス:' },
             'status-players': { es: 'Jugadores Conectados:', en: 'Players Online:', pt: 'Jogadores Online:', fr: 'Joueurs Connectés:', de: 'Spieler Online:', ja: 'オンラインプレイヤー:' },
@@ -501,7 +501,7 @@
         function performLogout() {
             closeLogoutModal(); 
             setTimeout(() => {
-                 window.location.href = 'login.html';
+                 window.location.href = 'index.html'; // ✅ CORRECCIÓN A index.html
             }, 300); 
         }
 
