@@ -1,35 +1,71 @@
 // registro.js
 
 // Importar herramientas necesarias de Firebase
-// Nota: 'auth' y 'db' vienen de tu firebase-config.js
 import { auth, db } from "./firebase-config.js"; 
 import { createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"; 
 
 
-// Función principal que maneja el registro
-function handleRegistration(event) {
-    event.preventDefault(); // Detener el envío de formulario HTML
+// =============================================================
+// FUNCIÓN PARA MOSTRAR MENSAJES (ÉXITO Y ERROR)
+// =============================================================
+function showAlert(message, type, autoClose = false, redirectURL = null) {
+    const container = document.getElementById('custom-alert-container');
+    container.style.display = 'block';
 
-    // 1. Obtener los valores de los campos por sus IDs
+    const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+    const closeBtn = autoClose ? '' : '<button onclick="this.parentElement.parentElement.style.display=\'none\'">CERRAR</button>';
+    
+    container.innerHTML = `
+        <div class="custom-alert ${type}" id="alert-box">
+            ${icon}
+            <p>${message}</p>
+            ${closeBtn}
+        </div>
+    `;
+
+    setTimeout(() => {
+        document.getElementById('alert-box').classList.add('show');
+    }, 10); // Pequeño retraso para la animación
+
+    if (autoClose) {
+        setTimeout(() => {
+            const alertBox = document.getElementById('alert-box');
+            if(alertBox) {
+                alertBox.classList.remove('show');
+                setTimeout(() => { 
+                    container.style.display = 'none'; 
+                    if(redirectURL) {
+                        window.location.href = redirectURL; // Redirigir DESPUÉS de la animación de salida
+                    }
+                }, 500); // Esperar animación de salida
+            }
+        }, 2500); // El mensaje dura 2.5 segundos
+    }
+}
+
+
+// =============================================================
+// FUNCIÓN DE REGISTRO
+// =============================================================
+function handleRegistration(event) {
+    event.preventDefault(); 
+
     const email = document.getElementById('register-email').value;
     const password = document.getElementById('register-password').value;
     const username = document.getElementById('register-username').value; 
 
-    // Opcional: Validaciones de longitud mínima de Firebase
     if (password.length < 6) {
-        alert("Contraseña muy débil. Firebase requiere un mínimo de 6 caracteres.");
+        showAlert("Contraseña muy débil. Firebase requiere un mínimo de 6 caracteres.", 'error', false);
         return;
     }
 
-    // 2. Llamar a Firebase para crear el usuario
     createUserWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
             const user = userCredential.user;
             
-            // 2.1. Guardar datos adicionales (username) en Firestore
+            // Guardar datos adicionales (username) en Firestore
             try {
-                // Guarda el username y ajustes iniciales (tema/idioma)
                 await setDoc(doc(db, "users", user.uid), {
                     username: username,
                     email: user.email,
@@ -40,18 +76,17 @@ function handleRegistration(event) {
                 console.error("Error al guardar datos de usuario en la base de datos: ", e);
             }
             
-            alert(`¡Registro exitoso! Bienvenido, ${username}.`);
-            
-            // 3. Redirigir al dashboard (Usando la ruta absoluta para GitHub Pages)
-            window.location.href = `/pagina-principal/dashboard.html?username=${username}`;
+            const redirectURL = `/pagina-principal/dashboard.html?username=${username}`;
+
+            // Mostrar mensaje de éxito (paloma verde, se quita solo, redirige)
+            showAlert("¡Te has registrado correctamente!", 'success', true, redirectURL);
         })
         .catch((error) => {
-            // Manejar errores de Firebase
             const errorCode = error.code;
             let errorMessage;
 
             if (errorCode === 'auth/email-already-in-use') {
-                errorMessage = "Ese correo ya está registrado.";
+                errorMessage = "¡Ya hay una cuenta con este correo!";
             } else if (errorCode === 'auth/invalid-email') {
                  errorMessage = "El formato del correo electrónico es inválido.";
             } else if (errorCode === 'auth/weak-password') {
@@ -60,11 +95,15 @@ function handleRegistration(event) {
                  errorMessage = `Error de Firebase: ${error.message}`;
             }
 
-            alert(errorMessage);
+            // Mostrar mensaje de error (cruz roja, requiere clic para quitar)
+            showAlert(errorMessage, 'error', false);
         });
 }
 
-// 4. Conectar la función al formulario cuando el DOM esté listo
+
+// =============================================================
+// CONEXIÓN AL FORMULARIO
+// =============================================================
 document.addEventListener('DOMContentLoaded', () => {
     const registrationForm = document.getElementById('registration-form');
     if (registrationForm) {

@@ -1,62 +1,96 @@
 // login.js
 
-// Importar herramientas necesarias de Firebase (auth, db ya están en firebase-config.js)
+// Importar herramientas necesarias de Firebase
 import { auth, db } from "./firebase-config.js"; 
 import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
-import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"; // Para obtener el username
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js"; 
 
 
-// Función principal que maneja el inicio de sesión
+// =============================================================
+// FUNCIÓN PARA MOSTRAR MENSAJES (ERROR)
+// =============================================================
+function showAlert(message, type, autoClose = false) {
+    const container = document.getElementById('custom-alert-container');
+    container.style.display = 'block';
+
+    const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+    const closeBtn = autoClose ? '' : '<button onclick="this.parentElement.parentElement.style.display=\'none\'">CERRAR</button>';
+    
+    container.innerHTML = `
+        <div class="custom-alert ${type}" id="alert-box">
+            ${icon}
+            <p>${message}</p>
+            ${closeBtn}
+        </div>
+    `;
+
+    setTimeout(() => {
+        document.getElementById('alert-box').classList.add('show');
+    }, 10); // Pequeño retraso para la animación
+
+    if (autoClose) {
+        setTimeout(() => {
+            const alertBox = document.getElementById('alert-box');
+            if(alertBox) {
+                alertBox.classList.remove('show');
+                setTimeout(() => { container.style.display = 'none'; }, 500); // Esperar animación de salida
+            }
+        }, 3000);
+    }
+}
+
+
+// =============================================================
+// FUNCIÓN DE LOGIN
+// =============================================================
 function handleLogin(event) {
-    event.preventDefault(); // Detener el envío de formulario HTML
+    event.preventDefault(); 
 
-    // 1. Obtener los valores de los campos por sus IDs
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
 
-    // 2. Llamar a Firebase para iniciar sesión
     signInWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
             const user = userCredential.user;
             
-            // 2.1. Buscar el username en Firestore
-            let username = user.email; // Valor por defecto
+            // Buscar el username en Firestore
+            let username = 'Usuario'; 
 
             try {
-                // El UID del usuario es la clave del documento en la colección 'users'
                 const docRef = doc(db, "users", user.uid);
                 const docSnap = await getDoc(docRef);
 
                 if (docSnap.exists()) {
-                    username = docSnap.data().username; // Obtiene el nombre guardado
+                    username = docSnap.data().username; 
                 }
             } catch (e) {
                 console.error("Error al obtener datos de usuario: ", e);
             }
             
-            alert(`¡Sesión iniciada! Bienvenido, ${username}.`);
-            
-            // 3. Redirigir al dashboard con el username
+            // NOTA: NO MOSTRAR NINGÚN MENSAJE DE BIENVENIDA, SOLO REDIRECCIÓN
             window.location.href = `/pagina-principal/dashboard.html?username=${username}`;
         })
         .catch((error) => {
-            // Manejar errores de Firebase
             const errorCode = error.code;
             let errorMessage;
 
-            if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found') {
+            if (errorCode === 'auth/wrong-password' || errorCode === 'auth/user-not-found' || errorCode === 'auth/invalid-credential') {
                 errorMessage = "Correo o contraseña incorrectos.";
             } else if (errorCode === 'auth/invalid-email') {
                  errorMessage = "El formato del correo electrónico es inválido.";
             } else {
-                 errorMessage = `Error de inicio de sesión: ${error.message}`;
+                 errorMessage = `Error: ${error.message}`;
             }
 
-            alert(errorMessage);
+            // Mostrar el mensaje de error con icono X (requiere clic para quitar)
+            showAlert(`¡ERROR! ${errorMessage}`, 'error', false);
         });
 }
 
-// 3. Conectar la función al formulario cuando el DOM esté listo
+
+// =============================================================
+// CONEXIÓN AL FORMULARIO
+// =============================================================
 document.addEventListener('DOMContentLoaded', () => {
     const loginForm = document.getElementById('login-form');
     if (loginForm) {
