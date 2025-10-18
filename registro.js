@@ -11,9 +11,20 @@ import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-f
 // =============================================================
 function showAlert(message, type, autoClose = false, redirectURL = null) {
     const container = document.getElementById('custom-alert-container');
+    
+    // Si el contenedor no existe, usamos alert de emergencia
+    if (!container) {
+        if (redirectURL) {
+            alert(message);
+            window.location.href = redirectURL;
+        } else {
+            alert(message);
+        }
+        return;
+    }
+    
     container.style.display = 'block';
 
-    // Se cambió a 'fas fa-check-circle' (paloma) y 'fas fa-times-circle' (X)
     const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
     // Se asegura de que la función de cerrar sea global
     const closeBtn = autoClose ? '' : '<button onclick="document.getElementById(\'custom-alert-container\').style.display=\'none\'">CERRAR</button>';
@@ -27,7 +38,10 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
     `;
 
     setTimeout(() => {
-        document.getElementById('alert-box').classList.add('show');
+        const alertBox = document.getElementById('alert-box');
+        if(alertBox) {
+             alertBox.classList.add('show');
+        }
     }, 10); // Pequeño retraso para la animación de entrada
 
     if (autoClose) {
@@ -35,14 +49,16 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
             const alertBox = document.getElementById('alert-box');
             if(alertBox) {
                 alertBox.classList.remove('show');
+                
+                // Aseguramos que la redirección ocurra SOLO después de la animación de salida
                 setTimeout(() => { 
                     container.style.display = 'none'; 
                     if(redirectURL) {
-                        window.location.href = redirectURL; // Redirigir DESPUÉS de la animación de salida
+                        window.location.href = redirectURL; 
                     }
-                }, 500); // Esperar animación de salida
+                }, 500); // Esperar 0.5s por la animación de salida
             }
-        }, 2500); // El mensaje dura 2.5 segundos
+        }, 2000); // El mensaje dura 2 segundos visible
     }
 }
 
@@ -56,9 +72,14 @@ function handleRegistration(event) {
     const email = document.getElementById('register-email').value;
     const password = document.getElementById('register-password').value;
     const username = document.getElementById('register-username').value; 
+    
+    // Desactivar el botón para evitar clics múltiples durante la carga
+    const submitBtn = document.querySelector('#registration-form button[type="submit"]');
+    submitBtn.disabled = true;
 
     if (password.length < 6) {
         showAlert("Contraseña muy débil. Firebase requiere un mínimo de 6 caracteres.", 'error', false);
+        submitBtn.disabled = false;
         return;
     }
 
@@ -80,7 +101,7 @@ function handleRegistration(event) {
             
             const redirectURL = `/pagina-principal/dashboard.html?username=${username}`;
 
-            // 2. Mostrar mensaje de éxito (ESTA ES LA LÍNEA CRUCIAL CORREGIDA)
+            // 2. Mostrar mensaje de éxito y dejar que showAlert maneje la redirección
             showAlert("¡Te has registrado correctamente!", 'success', true, redirectURL);
         })
         .catch((error) => {
@@ -97,8 +118,16 @@ function handleRegistration(event) {
                  errorMessage = `Error de Firebase: ${error.message}`;
             }
 
-            // Mostrar mensaje de error (cruz roja, requiere clic para quitar)
+            // Mostrar mensaje de error (requiere clic para quitar)
             showAlert(errorMessage, 'error', false);
+            
+        })
+        .finally(() => {
+            // Habilitar el botón si la función no terminó con una redirección
+            const container = document.getElementById('custom-alert-container');
+            if (container.style.display === 'none' || container.style.display === '') {
+                submitBtn.disabled = false;
+            }
         });
 }
 
