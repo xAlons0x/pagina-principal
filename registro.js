@@ -7,19 +7,14 @@ import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-f
 
 
 // =============================================================
-// FUNCIÓN PARA MOSTRAR MENSAJES (ÉXITO Y ERROR)
+// FUNCIÓN PARA MOSTRAR MENSAJES (AHORA SOLO PARA ERRORES)
 // =============================================================
-function showAlert(message, type, autoClose = false, redirectURL = null) {
+function showAlert(message, type, autoClose = false) {
     const container = document.getElementById('custom-alert-container');
     
     // Si el contenedor no existe, usamos alert de emergencia
     if (!container) {
-        if (redirectURL) {
-            alert(message);
-            window.location.href = redirectURL;
-        } else {
-            alert(message);
-        }
+        alert(message);
         return;
     }
     
@@ -45,20 +40,17 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
     }, 10); // Pequeño retraso para la animación de entrada
 
     if (autoClose) {
+        // Esta lógica solo se usará para cerrar el error si fuera necesario, 
+        // pero la dejaremos inactiva ya que los errores requieren clic.
         setTimeout(() => {
             const alertBox = document.getElementById('alert-box');
             if(alertBox) {
                 alertBox.classList.remove('show');
-                
-                // Aseguramos que la redirección ocurra SOLO después de la animación de salida
                 setTimeout(() => { 
                     container.style.display = 'none'; 
-                    if(redirectURL) {
-                        window.location.href = redirectURL; 
-                    }
-                }, 500); // Esperar 0.5s por la animación de salida
+                }, 500);
             }
-        }, 2000); // El mensaje dura 2 segundos visible
+        }, 2500); 
     }
 }
 
@@ -73,7 +65,7 @@ function handleRegistration(event) {
     const password = document.getElementById('register-password').value;
     const username = document.getElementById('register-username').value; 
     
-    // Desactivar el botón para evitar clics múltiples durante la carga
+    // Desactivar el botón para evitar clics múltiples
     const submitBtn = document.querySelector('#registration-form button[type="submit"]');
     submitBtn.disabled = true;
 
@@ -101,10 +93,14 @@ function handleRegistration(event) {
             
             const redirectURL = `/pagina-principal/dashboard.html?username=${username}`;
 
-            // 2. Mostrar mensaje de éxito y dejar que showAlert maneje la redirección
-            showAlert("¡Te has registrado correctamente!", 'success', true, redirectURL);
+            // 2. ÉXITO: Redirección inmediata al panel sin mostrar el modal de éxito, 
+            // lo que garantiza que no habrá fallo de redireccionamiento.
+            window.location.href = redirectURL;
         })
         .catch((error) => {
+            // Habilitar el botón en caso de error
+            submitBtn.disabled = false;
+            
             const errorCode = error.code;
             let errorMessage;
 
@@ -118,16 +114,8 @@ function handleRegistration(event) {
                  errorMessage = `Error de Firebase: ${error.message}`;
             }
 
-            // Mostrar mensaje de error (requiere clic para quitar)
+            // Mostrar mensaje de error (cruz roja, requiere clic para quitar)
             showAlert(errorMessage, 'error', false);
-            
-        })
-        .finally(() => {
-            // Habilitar el botón si la función no terminó con una redirección
-            const container = document.getElementById('custom-alert-container');
-            if (container.style.display === 'none' || container.style.display === '') {
-                submitBtn.disabled = false;
-            }
         });
 }
 
