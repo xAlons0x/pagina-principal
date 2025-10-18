@@ -25,7 +25,7 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
     container.style.display = 'block';
 
     const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
-    // ERROR: REQUIERE CLIC para quitarse. ÉXITO: no tiene botón.
+    // ERROR: REQUIERE CLIC. ÉXITO: no tiene botón.
     const closeBtn = autoClose ? '' : '<button onclick="document.getElementById(\'custom-alert-container\').style.display=\'none\'">CERRAR</button>';
     
     container.innerHTML = `
@@ -61,7 +61,7 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
                     }
                 }, 500); 
             }
-        }, 2000); // Tiempo de visualización
+        }, 2000); // Tiempo de visualización del mensaje
     }
 }
 
@@ -70,11 +70,11 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
 // FUNCIÓN DE REGISTRO
 // =============================================================
 function handleRegistration(event) {
-    event.preventDefault(); // CRÍTICO: Evita la redirección del HTML
+    event.preventDefault();
 
-    // IDs ACTUALIZADOS: email, username, contrasena
+    // IDs Sincronizados
     const email = document.getElementById('email').value;
-    const password = document.getElementById('contrasena').value; // Usamos 'contrasena'
+    const password = document.getElementById('contrasena').value; 
     const username = document.getElementById('username').value; 
     
     const submitBtn = document.querySelector('#registration-form button[type="submit"]');
@@ -116,7 +116,7 @@ function handleRegistration(event) {
             let errorMessage;
 
             if (errorCode === 'auth/email-already-in-use') {
-                errorMessage = "¡Ya hay una cuenta con este correo!";
+                errorMessage = "¡Ya hay una cuenta con este correo!"; // ESTE MENSAJE DEBE SALIR AHORA
             } else if (errorCode === 'auth/invalid-email') {
                  errorMessage = "El formato del correo electrónico es inválido.";
             } else if (errorCode === 'auth/weak-password') {
