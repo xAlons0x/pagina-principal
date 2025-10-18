@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Mi Mundo</title>
+    <style>
+        /* ------------------- ESTILOS GENERALES Y VARIABLES ------------------- */
+        body { font-family: 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f0f0f0; }
+        a { text-decoration: none; color: inherit; }
+        
+        /* Variables de colores predeterminadas (Claro) */
+        :root {
+            --sidebar-bg: #2c3e50;
+            --sidebar-text: white;
+            --sidebar-active-bg: #34495e;
+            --sidebar-active-border: #2ecc71;
+            --content-bg: #ffffff;
+            --text-color: #333;
+            --header-border: #ddd;
+            --box-inner-bg: #e8f8f5; 
+            --dark-box-inner-bg: #333;
+            --dark-box-border: #555;
+        }
+
+        /* ------------------- TEMA OSCURO 🌙 PROFUNDO ------------------- */
+        .theme-dark {
+            /* Colores Base (Más oscuros) */
+            --sidebar-bg: #121212; /* Casi negro */
+            --sidebar-text: #ffffff; /* Blanco puro */
+            --content-bg: #1e1e1e; /* Gris oscuro para el contenido principal */
+            --text-color: #ffffff; /* Texto blanco */
+            
+            /* Bordes y Divisiones */
+            --header-border: #333333; /* Borde de división oscuro */
+            
+            /* Sidebar Activo */
+            --sidebar-active-bg: #282828; /* Fondo activo ligeramente más claro */
+            --sidebar-active-border: #00bcd4; /* Borde de resalte (Turquesa) */
+            
+            /* Cajas y Elementos Internos */
+            --box-inner-bg: #282828; /* Fondo de cajas internas más oscuro */
+            --dark-box-border: #444444; /* Borde de cajas en modo oscuro */
+        }
+        
+        .theme-dark .page-container {
+            background-color: var(--content-bg);
+            color: var(--text-color);
+        }
+        .theme-dark .sidebar {
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            border-right: 1px solid var(--header-border);
+        }
+        .theme-dark .sidebar-header {
+            border-bottom: 1px solid var(--header-border);
+        }
+        .theme-dark .sidebar nav a:hover,
+        .theme-dark .sidebar nav .active {
+            background-color: var(--sidebar-active-bg);
+            border-left-color: var(--sidebar-active-border);
+        }
+        .theme-dark .section-box {
+            background: var(--content-bg); 
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.6); 
+            color: var(--text-color); 
+        }
+        .theme-dark header {
+            border-bottom-color: var(--header-border);
+        }
+        .theme-dark .data-box {
+            background-color: var(--box-inner-bg); 
+            border: 1px solid var(--dark-box-border); 
+        }
+        .theme-dark .settings-form input[type="email"], 
+        .theme-dark .settings-form input[type="password"], 
+        .theme-dark .settings-form input[type="text"] {
+            background-color: #121212; 
+            border-color: #444444; 
+            color: #ffffff; 
+        }
+        .theme-dark .modal-content {
+            background-color: #1e1e1e;
+            color: var(--text-color);
+            border: 1px solid #444444;
+        }
+        .theme-dark .profile-dropdown {
+            background-color: var(--box-inner-bg);
+            color: var(--sidebar-text);
+        }
+        .theme-dark #language-select {
+            background-color: #121212;
+            border-color: #444444;
+            color: #ffffff;
+        }
+
+
+        /* ------------------- CONTENEDORES Y BÁSICOS (Mantienen consistencia) ------------------- */
+        .page-container {
+            display: flex;
+            height: 100vh;
+            background-color: var(--content-bg);
+            color: var(--text-color);
+            transition: background-color 0.3s, color 0.3s;
+        }
+        .sidebar {
+            width: 250px;
+            background-color: var(--sidebar-bg);
+            color: var(--sidebar-text);
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: column;
+            position: fixed;
+            height: 100%;
+            z-index: 1000;
+        }
+        .sidebar-header {
+            padding: 0 20px 20px 20px;
+            font-size: 1.2em;
+            font-weight: bold;
+            border-bottom: 1px solid #34495e;
+        }
+        .sidebar nav a {
+            padding: 15px 20px;
+            display: block;
+            border-left: 5px solid transparent;
+            transition: all 0.3s;
+        }
+        .sidebar nav a:hover {
+            background-color: var(--sidebar-active-bg);
+            border-left-color: var(--sidebar-active-border);
+        }
+        .sidebar nav .active {
+            background-color: var(--sidebar-active-bg);
+            border-left-color: var(--sidebar-active-border);
+            font-weight: bold;
+        }
+        .main-content {
+            flex-grow: 1;
+            padding: 20px;
+            margin-left: 250px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+        .section-box {
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+        .data-box {
+            border: 1px solid var(--sidebar-active-border); 
+            padding: 15px; 
+            background-color: var(--box-inner-bg); 
+        }
+
+        /* ------------------- HEADER Y PERFIL ------------------- */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--header-border);
+            margin-bottom: 20px;
+        }
+        .profile-dropdown {
+            cursor: pointer;
+            padding: 10px 15px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+            font-weight: bold;
+            color: #333; 
+            display: flex;
+            align-items: center;
+        }
+        .profile-dropdown:hover {
+            background-color: #dcdde1;
+        }
+        .profile-icon {
+            margin-right: 8px; 
+            font-size: 1.2em;
+        }
+        
+        /* ------------------- MODAL DE CIERRE DE SESIÓN ------------------- */
+        #logout-modal {
+            display: none; 
+            position: fixed;
+            z-index: 2000; 
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.5); 
+            opacity: 0;
+            transition: opacity 0.25s ease-out; 
+        }
+        #logout-modal.show {
+            display: block;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 15% auto; 
+            padding: 30px;
+            border: 1px solid #888;
+            width: 80%; 
+            max-width: 400px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            border-top: 8px solid #e74c3c; 
+            transform: scale(0.95);
+            transition: transform 0.25s ease-out; 
+        }
+        #logout-modal.show .modal-content {
+            transform: scale(1);
+        }
+        
+        .modal-content h3 {
+            color: #e74c3c;
+            margin-top: 0;
+            font-size: 1.5em;
+        }
+        
+        .modal-buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: space-around;
+        }
+        .modal-buttons button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            min-width: 120px;
+            transition: background-color 0.2s;
+        }
+        #btn-confirm-logout {
+            background-color: #e74c3c;
+            color: white;
+        }
+        #btn-confirm-logout:hover {
+            background-color: #c0392b;
+        }
+        #btn-cancel-logout {
+            background-color: #bdc3c7;
+            color: #333;
+        }
+        #btn-cancel-logout:hover {
+            background-color: #95a5a6;
+        }
+        
+        /* ------------------- FORMULARIOS (AJUSTES) ------------------- */
+        .settings-form label { display: block; margin-top: 15px; font-weight: bold; }
+        .settings-form input[type="email"], 
+        .settings-form input[type="password"], 
+        .settings-form input[type="text"] {
+            width: 100%; 
+            padding: 10px; 
+            margin-top: 5px; 
+            border: 1px solid #ccc; 
+            border-radius: 4px; 
+            box-sizing: border-box;
+            background-color: var(--content-bg); 
+            color: var(--text-color);
+        }
+        .settings-form button {
+            background-color: #2ecc71;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+        .settings-form button:hover { background-color: #27ae60; }
+        
+        .theme-selector { margin-top: 15px; }
+        .theme-selector label { margin-right: 20px; font-weight: normal;}
+        
+        #language-select {
+            padding: 8px 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            margin-top: 5px;
+            background-color: var(--content-bg);
+            color: var(--text-color);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="page-container" id="page-container">
+        
+        <div class="sidebar" id="sidebar">
+            <div class="sidebar-header" data-i18n="app-title">MINECRAFT HUB</div>
+            <nav>
+                <a href="#inicio" class="active" id="nav-inicio" data-i18n="nav-home">Inicio</a>
+                <a href="#perfil" id="nav-perfil" data-i18n="nav-profile">Perfil</a>
+                <a href="#proyectos" id="nav-proyectos" data-i18n="nav-projects">Proyectos</a>
+                <a href="#ajustes" id="nav-ajustes" data-i18n="nav-settings">Ajustes</a>
+                <a href="#" onclick="showLogoutModal(event)" style="margin-top: auto; background-color: #e74c3c; text-align: center; border-left: none; color: white;" data-i18n="nav-logout">Cerrar Sesión</a>
+            </nav>
+        </div>
+
+        <div class="main-content" id="main-content">
+            
+            <header>
+                <h1 data-i18n="header-title">Panel de Control</h1>
+                <div class="profile-dropdown" onclick="showSection('perfil')">
+                    <span class="profile-icon">👤</span> 
+                    <span data-i18n="profile-link-text">Perfil</span>
+                </div>
+            </header>
+            
+            <section id="inicio" class="section-box" style="display: block;">
+                <h2 data-i18n="dashboard-heading">Bienvenido a VulcanusMC</h2>
+                <p data-i18n="dashboard-welcome">Aquí puedes ver el estado actual del servidor y de tu cuenta.</p>
+                
+                <div class="data-box" style="margin-top: 20px;">
+                    <h3 data-i18n="server-status-title">Estado del Servidor</h3>
+                    <p><strong data-i18n="status-online">Estado:</strong> <span style="color: #2ecc71;">EN LÍNEA</span></p>
+                    <p><strong data-i18n="status-players">Jugadores Conectados:</strong> 12 / 100</p>
+                </div>
+                
+                <div class="data-box" style="margin-top: 20px;">
+                    <h3 data-i18n="account-summary-title">Resumen de tu Cuenta</h3>
+                    <p><strong data-i18n="label-username">Nombre de Usuario:</strong> Steve_Crafter</p>
+                    <p><strong data-i18n="label-last-login">Último Acceso:</strong> Hoy, 18:30h</p>
+                </div>
+            </section>
+
+            <section id="perfil" class="section-box" style="display: none;">
+                <h2 data-i18n="profile-heading">Datos de la Cuenta</h2>
+                <p data-i18n="profile-welcome">Revisa y actualiza tu información personal y de seguridad.</p>
+                
+                <div class="data-box">
+                    <p><strong data-i18n="label-username">Nombre de Usuario:</strong> Steve_Crafter</p>
+                    <p><strong data-i18n="label-email">Correo Electrónico:</strong> steve.crafter@gmail.com</p>
+                    <p><strong data-i18n="label-member-since">Miembro desde:</strong> 2025</p>
+                </div>
+                
+                <form class="settings-form">
+                    <h3 style="margin-top: 40px;" data-i18n="settings-update-title">Actualizar Credenciales</h3>
+                    <p data-i18n="settings-update-warning">Nota: Estos datos se actualizarán en la base de datos de tu servidor. Asegúrate de que sean correctos.</p>
+                    
+                    <label for="new-email" data-i18n="label-email">Correo Electrónico:</label>
+                    <input type="email" id="new-email" value="steve.crafter@gmail.com">
+                    
+                    <label for="new-username" data-i18n="label-username">Nombre de Usuario:</label>
+                    <input type="text" id="new-username" value="Steve_Crafter">
+
+                    <label for="password-old" data-i18n="label-old-password">Contraseña Antigua:</label>
+                    <input type="password" id="password-old" data-i18n-placeholder="placeholder-old-password" placeholder="Ingresa tu contraseña actual">
+                    
+                    <label for="password-new" data-i18n="label-new-password">Nueva Contraseña:</label>
+                    <input type="password" id="password-new" data-i18n-placeholder="placeholder-new-password" placeholder="Mínimo 9 caracteres">
+                    
+                    <button type="submit" data-i18n="button-save">Guardar Cambios</button>
+                </form>
+
+            </section>
+
+            <section id="proyectos" class="section-box" style="display: none;">
+                <h2 data-i18n="projects-heading">VulcanusMC - Proyectos y Comunidad</h2>
+                <p data-i18n="projects-description">¡Estamos de vuelta! VulcanusMC está reabriendo. Nuestro objetivo es motivar a la comunidad y atraer nuevos usuarios para hacer crecer este gran servidor de Minecraft. Habrá recompensas, eventos, y mucho más para premiar la actividad.</p>
+                
+                <div class="data-box" style="margin-top: 20px;">
+                    <h3 data-i18n="project-community-title">Nuestra Meta: Comunidad Activa</h3>
+                    <p data-i18n="project-community-desc">Nos enfocaremos en la actividad constante tanto en el juego como en Discord. Tu participación es clave para el éxito de VulcanusMC.</p>
+                </div>
+                <div class="data-box" style="margin-top: 10px;">
+                    <h3 data-i18n="project-rewards-title">Recompensas y Eventos</h3>
+                    <p data-i18n="project-rewards-desc">Estate atento a los eventos semanales y las recompensas exclusivas que se darán a los jugadores más leales y activos.</p>
+                </div>
+            </section>
+            
+            <section id="ajustes" class="section-box" style="display: none;">
+                <h2 data-i18n="settings-heading">Ajustes de la Aplicación</h2>
+                
+                <h3 data-i18n="settings-language-title">Idioma del Sitio</h3>
+                <p id="language-text" data-i18n="settings-language-desc">Selecciona el idioma para el texto de la interfaz:</p>
+                <select id="language-select" onchange="changeLanguage()">
+                    <option value="es">Español (ES)</option>
+                    <option value="en">English (EN)</option>
+                    <option value="pt">Português (PT)</option>
+                    <option value="fr">Français (FR)</option>
+                    <option value="de">Deutsch (DE)</option>
+                    <option value="ja">日本語 (JA)</option>
+                </select>
+
+                <h3 style="margin-top: 40px;" data-i18n="settings-theme-title">Apariencia del Tema</h3>
+                <div class="theme-selector" onchange="changeTheme()">
+                    <label><input type="radio" name="theme" value="light" id="theme-light" checked> <span data-i18n="theme-light">Tema Claro</span></label>
+                    <label><input type="radio" name="theme" value="dark" id="theme-dark"> <span data-i18n="theme-dark">Tema Oscuro</span></label>
+                </div>
+            </section>
+
+        </div>
+    </div>
+    
+    <div id="logout-modal">
+        <div class="modal-content">
+            <h3 data-i18n="modal-title">Cerrar Sesión</h3>
+            
+            <p data-i18n="modal-message">¿Estás seguro de que deseas cerrar la sesión? Te recordamos que **tus acciones y ajustes se guardan automáticamente** en tiempo real.</p>
+            
+            <div class="modal-buttons">
+                <button id="btn-cancel-logout" onclick="closeLogoutModal()" data-i18n="modal-cancel">Cancelar</button>
+                <button id="btn-confirm-logout" onclick="performLogout()" data-i18n="modal-confirm">Confirmar Salida</button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const pageContainer = document.getElementById('page-container');
+        
+        // ===================================================================
+        // DICCIONARIO DE TRADUCCIONES (ACTUALIZADO: Pregunta al inicio)
+        // ===================================================================
+        const translations = {
+            'app-title': { es: 'MINECRAFT HUB', en: 'MINECRAFT HUB', pt: 'MINECRAFT HUB', fr: 'MINECRAFT HUB', de: 'MINECRAFT HUB', ja: 'マインクラフト HUB' },
+            'nav-home': { es: 'Inicio', en: 'Home', pt: 'Início', fr: 'Accueil', de: 'Startseite', ja: 'ホーム' },
+            'nav-profile': { es: 'Perfil', en: 'Profile', pt: 'Perfil', fr: 'Profil', de: 'Profil', ja: 'プロフィール' },
+            'nav-projects': { es: 'Proyectos', en: 'Projects', pt: 'Projetos', fr: 'Projets', de: 'Projekte', ja: 'プロジェクト' },
+            'nav-settings': { es: 'Ajustes', en: 'Settings', pt: 'Configurações', fr: 'Paramètres', de: 'Einstellungen', ja: '設定' },
+            'nav-logout': { es: 'Cerrar Sesión', en: 'Logout', pt: 'Sair', fr: 'Déconnexion', de: 'Abmelden', ja: 'ログアウト' },
+            'header-title': { es: 'Panel de Control', en: 'Dashboard', pt: 'Painel de Controle', fr: 'Tableau de Bord', de: 'Kontrollzentrum', ja: 'ダッシュボード' },
+            'profile-link-text': { es: 'Perfil', en: 'Profile', pt: 'Perfil', fr: 'Profil', de: 'Profil', ja: 'プロフィール' },
+            'dashboard-heading': { es: 'Bienvenido a VulcanusMC', en: 'Welcome to VulcanusMC', pt: 'Bem-vindo ao VulcanusMC', fr: 'Bienvenue sur VulcanusMC', de: 'Willkommen bei VulcanusMC', ja: 'VulcanusMCへようこそ' },
+            'dashboard-welcome': { es: 'Aquí puedes ver el estado actual del servidor y de tu cuenta.', en: 'Here you can see the current server and account status.', pt: 'Aqui você pode ver o estado atual do servidor e da sua conta.', fr: 'Ici, vous pouvez voir l\'état actuel du servidor y de votre compte.', de: 'Hier können Sie den aktuellen Server- und Kontostatus sehen.', ja: 'ここでは、現在のサーバーとアカウントのステータスを確認できます。' },
+            'server-status-title': { es: 'Estado del Servidor', en: 'Server Status', pt: 'Status do Servidor', fr: 'Statut du Serveur', de: 'Serverstatus', ja: 'サーバーのステータス' },
+            'status-online': { es: 'Estado:', en: 'Status:', pt: 'Status:', fr: 'Statut:', de: 'Status:', ja: 'ステータス:' },
+            'status-players': { es: 'Jugadores Conectados:', en: 'Players Online:', pt: 'Jogadores Online:', fr: 'Joueurs Connectés:', de: 'Spieler Online:', ja: 'オンラインプレイヤー:' },
+            'account-summary-title': { es: 'Resumen de tu Cuenta', en: 'Account Summary', pt: 'Resumo da Conta', fr: 'Résumé du Compte', de: 'Kontozusammenfassung', ja: 'アカウントの概要' },
+            'label-last-login': { es: 'Último Acceso:', en: 'Last Login:', pt: 'Último Acesso:', fr: 'Dernière Connexion:', de: 'Letzter Login:', ja: '最終ログイン:' },
+            'profile-heading': { es: 'Datos de la Cuenta', en: "Account Details", pt: 'Detalhes da Conta', fr: 'Détails du Compte', de: 'Kontodetails', ja: 'アカウント詳細' },
+            'profile-welcome': { es: 'Revisa y actualiza tu información personal y de seguridad.', en: 'Review and update your personal and security information.', pt: 'Revise e atualize suas informações pessoais e de segurança.', fr: 'Examinez et mettez à jour vos informations personnelles et de sécurité.', de: 'Überprüfen und aktualisieren Sie Ihre persönlichen und Sicherheitsinformationen.', ja: '個人情報とセキュリティ情報を確認および更新してください。' },
+            'label-username': { es: 'Nombre de Usuario:', en: 'Username:', pt: 'Nome de Usuário:', fr: "Nom d'Utilisateur:", de: 'Benutzername:', ja: 'ユーザー名:' },
+            'label-email': { es: 'Correo Electrónico:', en: 'Email:', pt: 'E-mail:', fr: 'Courriel:', de: 'E-Mail:', ja: 'メールアドレス:' },
+            'label-member-since': { es: 'Miembro desde:', en: 'Member Since:', pt: 'Membro Desde:', fr: 'Membre Depuis:', de: 'Mitglied Seit:', ja: '会員登録日:' },
+            'projects-heading': { es: 'VulcanusMC - Proyectos y Comunidad', en: 'VulcanusMC - Projects and Community', pt: 'VulcanusMC - Projetos e Comunidade', fr: 'VulcanusMC - Projets et Communauté', de: 'VulcanusMC - Projekte und Gemeinschaft', ja: 'VulcanusMC - プロジェクトとコミュニティ' },
+            'projects-description': { es: '¡Estamos de vuelta! VulcanusMC está reabriendo. Nuestro objetivo es motivar a la comunidad y atraer nuevos usuarios para hacer crecer este gran servidor de Minecraft. Habrá recompensas, eventos, y mucho más para premiar la actividad.', en: 'We are back! VulcanusMC is reopening. Our goal is to motivate the community and attract new users to grow this great Minecraft server. There will be rewards, events, and much more to reward activity.', pt: 'Estamos de volta! O VulcanusMC está reabrindo. Nosso objetivo é motivar a comunidade e atrair novos usuários para fazer crescer este grande servidor de Minecraft. Haverá recompensas, eventos e muito mais para premiar a atividade.', fr: 'Nous sommes de retour! VulcanusMC rouvre. Notre objectif est de motiver la communauté et d’attirer de nouveaux utilisateurs pour développer ce grand serveur Minecraft. Il y aura des récompenses, des événements et bien plus encore pour récompenser l’activité.', de: 'Wir sind zurück! VulcanusMC wird wiedereröffnet. Unser Ziel ist es, die Community zu motivieren und neue Benutzer zu gewinnen, um diesen großartigen Minecraft-Server wachsen zu lassen. Es wird Belohnungen, Events und vieles mehr geben, um Aktivität zu belohnen.', ja: '復活しました！VulcanusMCが再開します。私たちの目標は、この素晴らしいマインクラフトサーバーを成長させるために、コミュニティを活性化し、新しいユーザーを引き付けることです。活動を称えるための報酬、イベントなどが用意されます。' },
+            'project-community-title': { es: 'Nuestra Meta: Comunidad Activa', en: 'Our Goal: Active Community', pt: 'Nossa Meta: Comunidade Ativa', fr: 'Notre Objectif: Communauté Active', de: 'Unser Ziel: Aktive Gemeinschaft', ja: '私たちの目標：活発なコミュニティ' },
+            'project-community-desc': { es: 'Nos enfocaremos en la actividad constante tanto en el juego como en Discord. Tu participación es clave para el éxito de VulcanusMC.', en: 'We will focus on constant activity both in the game and on Discord. Your participation is key to the success of VulcanusMC.', pt: 'Focaremos na atividade constante tanto no jogo quanto no Discord. Sua participação é fundamental para o sucesso do VulcanusMC.', fr: 'Nous nous concentrerons sur l\'activité constante dans le jeu et sur Discord. Votre participation est essentielle au succès de VulcanusMC.', de: 'Wir werden uns auf ständige Aktivität sowohl im Spiel als auch auf Discord konzentrieren. Ihre Teilnahme ist entscheidend für den Erfolg von VulcanusMC.', ja: 'ゲーム内とDiscordの両方での継続的な活動に焦点を当てます。あなたの参加がVulcanusMCの成功の鍵です。' },
+            'project-rewards-title': { es: 'Recompensas y Eventos', en: 'Rewards and Events', pt: 'Recompensas e Eventos', fr: 'Récompenses et Événements', de: 'Belohnungen und Veranstaltungen', ja: '報酬とイベント' },
+            'project-rewards-desc': { es: 'Estate atento a los eventos semanales y las recompensas exclusivas que se darán a los jugadores más leales y activos.', en: 'Stay tuned for weekly events and exclusive rewards that will be given to the most loyal and active players.', pt: 'Fique atento aos eventos semanais e recompensas exclusivas que serão concedidas aos jogadores mais leais y ativos.', fr: 'Restez à l\'écoute des événements hebdomadaires et des récompenses exclusives qui seront offertes aux joueurs les plus fidèles y actifs.', de: 'Bleiben Sie dran für wöchentliche Events und exklusive Belohnungen für die loyalsten und aktivsten Spieler.', ja: '最も忠実で活発なプレイヤーに贈られる週替わりのイベントと限定報酬にご期待ください。' },
+            'settings-heading': { es: 'Ajustes de la Aplicación', en: 'App Settings', pt: 'Configurações do Aplicativo', fr: 'Paramètres de l\'Application', de: 'App-Einstellungen', ja: 'アプリケーション設定' },
+            'settings-language-title': { es: 'Idioma del Sitio', en: 'Site Language', pt: 'Idioma do Site', fr: 'Langue du Site', de: 'Website-Sprache', ja: 'サイトの言語' },
+            'settings-language-desc': { es: 'Selecciona el idioma para el texto de la interfaz:', en: 'Select the language for the interface text:', pt: 'Selecione o idioma para o texto da interface:', fr: "Sélectionnez la langue pour le texte de l'interface:", de: 'Wählen Sie die Sprache für den Interface-Text:', ja: 'インターフェースの言語を選択してください:' },
+            'settings-theme-title': { es: 'Apariencia del Tema', en: 'Theme Appearance', pt: 'Theme Appearance', fr: 'Apparence du Thème', de: 'Thema-Erscheinung', ja: 'テーマの外観' },
+            'theme-light': { es: 'Tema Claro', en: 'Light Theme', pt: 'Tema Claro', fr: 'Thème Clair', de: 'Helles Thema', ja: '明るいテーマ' },
+            'theme-dark': { es: 'Tema Oscuro', en: 'Dark Theme', pt: 'Tema Escuro', fr: 'Thème Sombre', de: 'Dunkles Thema', ja: '暗いテーマ' },
+            'settings-update-title': { es: 'Actualizar Credenciales', en: 'Update Credentials', pt: 'Atualizar Credenciais', fr: 'Mettre à Jour les Accréditations', de: 'Zugangsdaten aktualisieren', ja: '資格情報を更新' },
+            'settings-update-warning': { es: 'Nota: Estos datos se actualizarán en la base de datos de tu servidor. Asegúrate de que sean correctos.', en: 'Note: These details will be updated in your server\'s database. Make sure they are correct.', pt: 'Nota: Estes detalhes serão atualizados na base de dados do seu servidor. Certifique-se de que estão corretos.', fr: 'Note: Ces détails seront mis à jour dans la base de données de votre servidor. Assurez-vous qu\'ils sont corrects.', de: 'Hinweis: Diese Details werden in der Datenbank Ihres Servers aktualisiert. Stellen Sie sicher, dass sie korrekt sind.', ja: '注意：これらの詳細はサーバーのデータベースで更新されます。正しく入力されていることを確認してください。' },
+            'label-old-password': { es: 'Contraseña Antigua:', en: 'Old Password:', pt: 'Senha Antiga:', fr: 'Ancien Mot de Passe:', de: 'Altes Passwort:', ja: '古いパスワード:' },
+            'label-new-password': { es: 'Nueva Contraseña:', en: 'New Password:', pt: 'Nova Senha:', fr: 'Nouveau Mot de Passe:', de: 'Neues Passwort:', ja: '新しいパスワード:' },
+            'placeholder-old-password': { es: 'Ingresa tu contraseña actual', en: 'Enter your current password', pt: 'Insira sua senha atual', fr: 'Entrez votre mot de passe actuel', de: 'Geben Sie Ihr aktuelles Passwort ein', ja: '現在のパスワードを入力' },
+            'placeholder-new-password': { es: 'Mínimo 9 caracteres', en: 'Minimum 9 characters', pt: 'Mínimo 9 caracteres', fr: 'Minimum 9 caractères', de: 'Mindestens 9 Zeichen', ja: '最低9文字' },
+            'button-save': { es: 'Guardar Cambios', en: 'Save Changes', pt: 'Salvar Alterações', fr: 'Sauvegarder les Changements', de: 'Änderungen Speichern', ja: '変更を保存' },
+            
+            // Traducciones para el Modal (ACTUALIZADAS con pregunta al inicio)
+            'modal-title': { es: 'Cerrar Sesión', en: 'Log Out', pt: 'Sair', fr: 'Déconnexion', de: 'Abmelden', ja: 'ログアウト' },
+            'modal-message': { 
+                es: '¿Estás seguro de que deseas cerrar la sesión? **Tus acciones y ajustes se guardan automáticamente** en tiempo real.', 
+                en: 'Are you sure you want to log out? **Your actions and settings are saved automatically** in real-time.', 
+                pt: 'Tem certeza de que deseja sair? **Suas ações e configurações são salvas automaticamente** em tempo real.', 
+                fr: 'Êtes-vous sûr de vouloir vous déconnecter? **Vos actions et paramètres sont enregistrés automatiquement** en temps réel.', 
+                de: 'Sind Sie sicher, dass Sie sich abmelden möchten? **Ihre Aktionen und Einstellungen werden automatisch** in Echtzeit gespeichert.', 
+                ja: 'ログアウトしてもよろしいですか？**お客様の操作と設定はリアルタイムで自動保存されます**。'
+            },
+            'modal-cancel': { es: 'Cancelar', en: 'Cancel', pt: 'Cancelar', fr: 'Annuler', de: 'Abbrechen', ja: 'キャンセル' },
+            'modal-confirm': { es: 'Confirmar Salida', en: 'Confirm Exit', pt: 'Confirmar Saída', fr: 'Confirmer la Sortie', de: 'Ausgang bestätigen', ja: '終了を確認' }
+        };
+
+
+        // ===================================================================
+        // FUNCIONALIDAD DEL MODAL (VENTANA DE CONFIRMACIÓN)
+        // ===================================================================
+        const logoutModal = document.getElementById('logout-modal');
+        
+        function showLogoutModal(event) {
+            event.preventDefault(); 
+            logoutModal.style.display = 'block';
+            setTimeout(() => {
+                logoutModal.classList.add('show');
+            }, 10); 
+        }
+
+        function closeLogoutModal() {
+            logoutModal.classList.remove('show');
+            setTimeout(() => {
+                 logoutModal.style.display = 'none';
+            }, 250); 
+        }
+
+        function performLogout() {
+            closeLogoutModal(); 
+            setTimeout(() => {
+                 window.location.href = 'login.html';
+            }, 300); 
+        }
+
+        window.onclick = function(event) {
+            if (event.target == logoutModal) {
+                closeLogoutModal();
+            }
+        }
+        
+        // ===================================================================
+        // 3. FUNCIONALIDAD DE IDIOMA (INSTANTÁNEA)
+        // ===================================================================
+        function translateContent(selectedLang) {
+            document.querySelectorAll('[data-i18n]').forEach(element => {
+                const key = element.getAttribute('data-i18n');
+                if (translations[key] && translations[key][selectedLang]) {
+                    // Manejar el formato de negrita (solo para modal-message)
+                    let text = translations[key][selectedLang];
+                    
+                    // Reemplazar la marca **...** con etiquetas HTML <strong>
+                    // Esto funciona para todos los idiomas en la clave modal-message
+                    if (key === 'modal-message') {
+                        text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+                    }
+                    element.innerHTML = text; // Usamos innerHTML para que <strong> funcione
+                }
+            });
+            
+            document.querySelectorAll('[data-i18n-placeholder]').forEach(element => {
+                const key = element.getAttribute('data-i18n-placeholder');
+                if (translations[key] && translations[key][selectedLang]) {
+                    element.placeholder = translations[key][selectedLang];
+                }
+            });
+
+            const profileLinkText = document.querySelector('[data-i18n="profile-link-text"]');
+            if (profileLinkText && translations['profile-link-text'] && translations['profile-link-text'][selectedLang]) {
+                 profileLinkText.textContent = translations['profile-link-text'][selectedLang];
+            }
+        }
+
+        function changeLanguage() {
+            const selectedLang = document.getElementById('language-select').value;
+            translateContent(selectedLang);
+        }
+        
+        // ===================================================================
+        // 1. FUNCIONALIDAD DE NAVEGACIÓN
+        // ===================================================================
+        const navLinks = document.querySelectorAll('.sidebar nav a');
+        const contentSections = document.querySelectorAll('.main-content section');
+
+        function showSection(sectionId) {
+            contentSections.forEach(section => {
+                section.style.display = 'none';
+            });
+
+            const targetSection = document.getElementById(sectionId);
+            if (targetSection) {
+                targetSection.style.display = 'block';
+            }
+
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+            });
+
+            const activeLink = document.getElementById(`nav-${sectionId}`);
+            if (activeLink) {
+                activeLink.classList.add('active');
+            }
+        }
+
+        navLinks.forEach(link => {
+            if (link.getAttribute('href') === '#') return;
+            
+            link.addEventListener('click', function(event) {
+                event.preventDefault(); 
+                const sectionId = this.getAttribute('href').substring(1);
+                showSection(sectionId);
+            });
+        });
+
+        // ===================================================================
+        // 2. FUNCIONALIDAD DE TEMA (SOLO CLARO/OSCURO)
+        // ===================================================================
+        
+        function changeTheme() {
+            const selectedTheme = document.querySelector('input[name="theme"]:checked').value;
+            pageContainer.classList.remove('theme-dark'); 
+            if (selectedTheme === 'dark') {
+                pageContainer.classList.add('theme-dark');
+            } 
+        }
+        
+        // ===================================================================
+        // INICIALIZACIÓN FINAL
+        // ===================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            changeLanguage(); 
+            showSection('inicio');
+        });
+        
+    </script>
+
+</body>
+</html>
