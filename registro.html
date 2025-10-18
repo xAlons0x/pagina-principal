@@ -5,8 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Crear Cuenta</title>
     
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
     <style>
         /* CSS para el formulario de registro */
         body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #e3f2fd; margin: 0; }
@@ -18,52 +16,9 @@
         button:hover { background-color: #1565c0; }
         .requisitos { font-size: 0.9em; color: #757575; margin-bottom: 20px; text-align: left;}
         .enlace-login { text-align: center; margin-top: 20px; font-size: 0.9em; }
-
-        /* ------------------- ESTILOS DE NOTIFICACIÓN MODAL ------------------- */
-        #custom-alert-container {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            z-index: 1000;
-            display: none; /* Oculto por defecto */
-            text-align: center;
-        }
-        .custom-alert {
-            min-width: 250px;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
-            font-weight: bold;
-            color: white;
-            opacity: 0;
-            transition: opacity 0.5s, transform 0.5s;
-            transform: scale(0.9);
-        }
-        .custom-alert.show {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .custom-alert.success {
-            background-color: #4CAF50; /* Verde */
-        }
-        .custom-alert.error {
-            background-color: #f44336; /* Rojo */
-        }
-        .custom-alert i {
-            font-size: 30px;
-            margin-bottom: 10px;
-            display: block;
-        }
-        .custom-alert button {
-            background-color: rgba(255, 255, 255, 0.2);
-            color: white;
-            border: 1px solid white;
-            margin-top: 10px;
-            padding: 5px 15px;
-            cursor: pointer;
-            width: auto;
-        }
+        
+        /* Contenedor de errores (se mantiene oculto, pero necesario para el JS) */
+        #custom-alert-container { display: none; }
     </style>
 </head>
 <body>

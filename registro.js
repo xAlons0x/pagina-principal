@@ -7,62 +7,39 @@ import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-f
 
 
 // =============================================================
-// FUNCIÓN PARA MOSTRAR MENSAJES (ÉXITO Y ERROR)
+// FUNCIÓN PARA MOSTRAR MENSAJES (SOLO ERRORES)
 // =============================================================
-function showAlert(message, type, autoClose = false, redirectURL = null) {
+// Se mantiene la función completa pero solo se llamará para errores.
+function showAlert(message, type, autoClose = false) {
     const container = document.getElementById('custom-alert-container');
     
+    // Fallback simple si el contenedor no existe (improbable ahora)
     if (!container) {
-        if (redirectURL) {
-            alert(message);
-            window.location.href = redirectURL;
-        } else {
-            alert(message);
-        }
+        alert("ERROR: " + message);
         return;
     }
     
     container.style.display = 'block';
 
-    const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
-    // ERROR: REQUIERE CLIC. ÉXITO: no tiene botón.
-    const closeBtn = autoClose ? '' : '<button onclick="document.getElementById(\'custom-alert-container\').style.display=\'none\'">CERRAR</button>';
+    // Se mantiene la estructura visual del modal para errores (rojo)
+    const icon = '<i class="fas fa-times-circle"></i>';
+    const closeBtn = '<button onclick="document.getElementById(\'custom-alert-container\').style.display=\'none\'">CERRAR</button>';
     
     container.innerHTML = `
-        <div class="custom-alert ${type}" id="alert-box">
+        <div class="custom-alert error" id="alert-box">
             ${icon}
             <p>${message}</p>
             ${closeBtn}
         </div>
     `;
 
-    // 1. Mostrar el modal con animación de entrada
+    // Mostrar el modal
     setTimeout(() => {
         const alertBox = document.getElementById('alert-box');
         if(alertBox) {
              alertBox.classList.add('show');
         }
     }, 10); 
-
-    if (autoClose) {
-        // 2. Esperar el tiempo de visualización (2.0 segundos)
-        setTimeout(() => {
-            const alertBox = document.getElementById('alert-box');
-            if(alertBox) {
-                alertBox.classList.remove('show'); // Iniciar animación de salida
-                
-                // 3. Esperar a que la animación de salida termine (0.5 segundos)
-                setTimeout(() => { 
-                    container.style.display = 'none'; 
-                    
-                    // 4. Redirección GARANTIZADA al final
-                    if(redirectURL) {
-                        window.location.href = redirectURL; 
-                    }
-                }, 500); 
-            }
-        }, 2000); // Tiempo de visualización del mensaje
-    }
 }
 
 
@@ -70,7 +47,7 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
 // FUNCIÓN DE REGISTRO
 // =============================================================
 function handleRegistration(event) {
-    event.preventDefault();
+    event.preventDefault(); // CRÍTICO: Evita la redirección del HTML
 
     // IDs Sincronizados
     const email = document.getElementById('email').value;
@@ -104,8 +81,8 @@ function handleRegistration(event) {
             
             const redirectURL = `dashboard.html?username=${username}`; 
 
-            // 2. ÉXITO: Muestra el modal verde con retraso y redirección
-            showAlert("¡Te has registrado correctamente!", 'success', true, redirectURL);
+            // 2. ÉXITO: Redirección INMEDIATA (sin modal ni retraso)
+            window.location.href = redirectURL;
             
         })
         .catch((error) => {
@@ -116,7 +93,7 @@ function handleRegistration(event) {
             let errorMessage;
 
             if (errorCode === 'auth/email-already-in-use') {
-                errorMessage = "¡Ya hay una cuenta con este correo!"; // ESTE MENSAJE DEBE SALIR AHORA
+                errorMessage = "¡Ya hay una cuenta con este correo!";
             } else if (errorCode === 'auth/invalid-email') {
                  errorMessage = "El formato del correo electrónico es inválido.";
             } else if (errorCode === 'auth/weak-password') {
@@ -125,7 +102,7 @@ function handleRegistration(event) {
                  errorMessage = `Error de Firebase: ${error.message}`;
             }
 
-            // Mostrar mensaje de error (requiere clic para quitar)
+            // Mostrar mensaje de error (rojo)
             showAlert(errorMessage, 'error', false);
         });
 }
