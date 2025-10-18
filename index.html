@@ -21,9 +21,9 @@
             border-radius: 8px; 
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); 
             text-align: center;
-            width: 300px; /* Ancho fijo para la caja */
+            width: 300px; 
         }
-        input[type="text"], input[type="password"], button { 
+        input[type="email"], input[type="password"], button { 
             width: 100%; 
             padding: 10px; 
             margin: 8px 0; 
@@ -38,13 +38,16 @@
             border: none;
             font-size: 16px;
         }
+        button:hover {
+             background-color: #4cae4c;
+        }
         label {
             display: block; 
             text-align: left;
             margin-top: 10px;
             font-weight: bold;
         }
-        .enlace-registro { /* Estilo para el enlace de registro */
+        .enlace-registro { 
             text-align: center; 
             margin-top: 15px; 
             font-size: 0.9em;
@@ -56,24 +59,27 @@
     <div class="login-box">
         <h2>Ingresa al Sistema</h2>
         
-        <form action="dashboard.html" method="get">
+        <form id="login-form">
             
-            <label for="usuario">Usuario:</label>
-            <input type="text" id="usuario" name="usuario" required placeholder="tu.usuario">
+            <label for="login-email">Correo Electrónico:</label>
+            <input type="email" id="login-email" name="email" required placeholder="tu.correo@ejemplo.com">
             
-            <label for="contrasena">Contraseña:</label>
-            <input type="password" id="contrasena" name="contrasena" required placeholder="*******">
+            <label for="login-password">Contraseña:</label>
+            <input type="password" id="login-password" name="password" required placeholder="*******">
             
             <button type="submit">
-                Ingresar
+                Iniciar Sesión
             </button>
             
         </form>
-        
+
         <div class="enlace-registro">
             ¿No tienes cuenta? <a href="registro.html">Regístrate aquí</a>
         </div>
     </div>
+
+    <script type="module" src="firebase-config.js"></script> 
+    <script type="module" src="login.js"></script> 
 
 </body>
 </html>
