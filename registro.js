@@ -13,8 +13,10 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
     const container = document.getElementById('custom-alert-container');
     container.style.display = 'block';
 
+    // Se cambió a 'fas fa-check-circle' (paloma) y 'fas fa-times-circle' (X)
     const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
-    const closeBtn = autoClose ? '' : '<button onclick="this.parentElement.parentElement.style.display=\'none\'">CERRAR</button>';
+    // Se asegura de que la función de cerrar sea global
+    const closeBtn = autoClose ? '' : '<button onclick="document.getElementById(\'custom-alert-container\').style.display=\'none\'">CERRAR</button>';
     
     container.innerHTML = `
         <div class="custom-alert ${type}" id="alert-box">
@@ -26,7 +28,7 @@ function showAlert(message, type, autoClose = false, redirectURL = null) {
 
     setTimeout(() => {
         document.getElementById('alert-box').classList.add('show');
-    }, 10); // Pequeño retraso para la animación
+    }, 10); // Pequeño retraso para la animación de entrada
 
     if (autoClose) {
         setTimeout(() => {
@@ -64,7 +66,7 @@ function handleRegistration(event) {
         .then(async (userCredential) => {
             const user = userCredential.user;
             
-            // Guardar datos adicionales (username) en Firestore
+            // 1. Guardar datos adicionales (username) en Firestore
             try {
                 await setDoc(doc(db, "users", user.uid), {
                     username: username,
@@ -78,7 +80,7 @@ function handleRegistration(event) {
             
             const redirectURL = `/pagina-principal/dashboard.html?username=${username}`;
 
-            // Mostrar mensaje de éxito (paloma verde, se quita solo, redirige)
+            // 2. Mostrar mensaje de éxito (ESTA ES LA LÍNEA CRUCIAL CORREGIDA)
             showAlert("¡Te has registrado correctamente!", 'success', true, redirectURL);
         })
         .catch((error) => {

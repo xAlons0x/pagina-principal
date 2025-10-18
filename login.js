@@ -14,7 +14,7 @@ function showAlert(message, type, autoClose = false) {
     container.style.display = 'block';
 
     const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
-    const closeBtn = autoClose ? '' : '<button onclick="this.parentElement.parentElement.style.display=\'none\'">CERRAR</button>';
+    const closeBtn = autoClose ? '' : '<button onclick="document.getElementById(\'custom-alert-container\').style.display=\'none\'">CERRAR</button>';
     
     container.innerHTML = `
         <div class="custom-alert ${type}" id="alert-box">
@@ -67,7 +67,7 @@ function handleLogin(event) {
                 console.error("Error al obtener datos de usuario: ", e);
             }
             
-            // NOTA: NO MOSTRAR NINGÚN MENSAJE DE BIENVENIDA, SOLO REDIRECCIÓN
+            // ÉXITO: Redirección INMEDIATA sin modal, como solicitaste.
             window.location.href = `/pagina-principal/dashboard.html?username=${username}`;
         })
         .catch((error) => {
