@@ -7,10 +7,17 @@ import { doc, getDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-f
 
 
 // =============================================================
-// FUNCIÓN PARA MOSTRAR MENSAJES (ERROR)
+// FUNCIÓN PARA MOSTRAR MENSAJES (ERROR) - IDÉNTICA A LA DE REGISTRO
 // =============================================================
 function showAlert(message, type, autoClose = false) {
     const container = document.getElementById('custom-alert-container');
+    
+    // Fallback de emergencia
+    if (!container) {
+        alert("FALLO EN MODAL: " + message);
+        return;
+    }
+    
     container.style.display = 'block';
 
     const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
@@ -25,15 +32,18 @@ function showAlert(message, type, autoClose = false) {
     `;
 
     setTimeout(() => {
-        document.getElementById('alert-box').classList.add('show');
-    }, 10); // Pequeño retraso para la animación
-
+        const alertBox = document.getElementById('alert-box');
+        if(alertBox) {
+             alertBox.classList.add('show');
+        }
+    }, 10);
+    
     if (autoClose) {
         setTimeout(() => {
             const alertBox = document.getElementById('alert-box');
             if(alertBox) {
                 alertBox.classList.remove('show');
-                setTimeout(() => { container.style.display = 'none'; }, 500); // Esperar animación de salida
+                setTimeout(() => { container.style.display = 'none'; }, 500); 
             }
         }, 3000);
     }
@@ -48,6 +58,10 @@ function handleLogin(event) {
 
     const email = document.getElementById('login-email').value;
     const password = document.getElementById('login-password').value;
+    
+    const submitBtn = document.querySelector('#login-form button[type="submit"]');
+    submitBtn.disabled = true;
+
 
     signInWithEmailAndPassword(auth, email, password)
         .then(async (userCredential) => {
@@ -67,10 +81,12 @@ function handleLogin(event) {
                 console.error("Error al obtener datos de usuario: ", e);
             }
             
-            // ÉXITO: Redirección INMEDIATA sin modal, como solicitaste.
-            window.location.href = `/pagina-principal/dashboard.html?username=${username}`;
+            // ÉXITO: Redirección INMEDIATA sin modal, como se requiere en el login
+            window.location.href = `dashboard.html?username=${username}`;
         })
         .catch((error) => {
+            submitBtn.disabled = false;
+            
             const errorCode = error.code;
             let errorMessage;
 

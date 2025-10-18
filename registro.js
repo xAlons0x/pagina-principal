@@ -7,20 +7,26 @@ import { doc, setDoc } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-f
 
 
 // =============================================================
-// FUNCIÓN PARA MOSTRAR MENSAJES (SOLO ERRORES)
+// FUNCIÓN PARA MOSTRAR MENSAJES (ÉXITO Y ERROR)
 // =============================================================
-function showAlert(message, type, autoClose = false) {
+function showAlert(message, type, autoClose = false, redirectURL = null) {
     const container = document.getElementById('custom-alert-container');
     
-    // Si el contenedor no existe, usamos alert de emergencia
+    // Fallback de emergencia
     if (!container) {
-        alert(message);
+        if (redirectURL) {
+            alert(message);
+            window.location.href = redirectURL;
+        } else {
+            alert(message);
+        }
         return;
     }
     
     container.style.display = 'block';
 
     const icon = type === 'success' ? '<i class="fas fa-check-circle"></i>' : '<i class="fas fa-times-circle"></i>';
+    // ERROR: REQUIERE CLIC para quitarse. ÉXITO: no tiene botón.
     const closeBtn = autoClose ? '' : '<button onclick="document.getElementById(\'custom-alert-container\').style.display=\'none\'">CERRAR</button>';
     
     container.innerHTML = `
@@ -31,12 +37,33 @@ function showAlert(message, type, autoClose = false) {
         </div>
     `;
 
+    // 1. Mostrar el modal con animación de entrada
     setTimeout(() => {
         const alertBox = document.getElementById('alert-box');
         if(alertBox) {
              alertBox.classList.add('show');
         }
     }, 10); 
+
+    if (autoClose) {
+        // 2. Esperar el tiempo de visualización (2.0 segundos)
+        setTimeout(() => {
+            const alertBox = document.getElementById('alert-box');
+            if(alertBox) {
+                alertBox.classList.remove('show'); // Iniciar animación de salida
+                
+                // 3. Esperar a que la animación de salida termine (0.5 segundos)
+                setTimeout(() => { 
+                    container.style.display = 'none'; 
+                    
+                    // 4. Redirección GARANTIZADA al final
+                    if(redirectURL) {
+                        window.location.href = redirectURL; 
+                    }
+                }, 500); 
+            }
+        }, 2000); // Tiempo de visualización
+    }
 }
 
 
@@ -44,7 +71,7 @@ function showAlert(message, type, autoClose = false) {
 // FUNCIÓN DE REGISTRO
 // =============================================================
 function handleRegistration(event) {
-    event.preventDefault(); // CRÍTICO: Evita que el HTML redirija por defecto
+    event.preventDefault();
 
     const email = document.getElementById('register-email').value;
     const password = document.getElementById('register-password').value;
@@ -63,7 +90,7 @@ function handleRegistration(event) {
         .then(async (userCredential) => {
             const user = userCredential.user;
             
-            // 1. Guardar datos adicionales (username) en Firestore
+            // 1. Guardar datos en Firestore
             try {
                 await setDoc(doc(db, "users", user.uid), {
                     username: username,
@@ -75,12 +102,13 @@ function handleRegistration(event) {
                 console.error("Error al guardar datos de usuario en la base de datos: ", e);
             }
             
-            // 2. REDIRECCIÓN CORREGIDA CON RUTA RELATIVA
-            const redirectURL = `./dashboard.html?username=${username}`; 
+            const redirectURL = `dashboard.html?username=${username}`; 
+
+            // 2. ÉXITO: Muestra el modal verde (autoClose: true) y pasa la URL. 
+            // La función showAlert ahora maneja la redirección con el retraso necesario.
+            showAlert("¡Te has registrado correctamente!", 'success', true, redirectURL);
             
-            // Redirección inmediata y garantizada al panel
-            window.location.href = redirectURL;
-            
+            // NOTA: El botón queda deshabilitado hasta que se redirige para evitar doble clic.
         })
         .catch((error) => {
             // Habilitar el botón en caso de error
